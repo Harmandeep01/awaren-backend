@@ -11,7 +11,7 @@ from app.schema import chat_schema
 
 router = APIRouter(prefix="/user")
 
-@router.post("/auth/register", response_model=chat_schema.Token)
+@router.post("/register", response_model=chat_schema.Token)
 async def register(user: UserCreate, session: AsyncSession = Depends(get_session)):
     # check existing
     q = await session.execute(select(User).where(User.email == user.email))
@@ -28,7 +28,7 @@ async def register(user: UserCreate, session: AsyncSession = Depends(get_session
     access_token = auth.create_access_token(data={"sub": str(new.user_id), "user_name" : str(new.user_name)})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/auth/login", response_model=chat_schema.Token)
+@router.post("/login", response_model=chat_schema.Token)
 async def login(form_data: Request, session: AsyncSession = Depends(get_session)):
     data = await form_data.json()
     email = data.get("email")
