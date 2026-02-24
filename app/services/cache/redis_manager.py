@@ -6,9 +6,9 @@ import functools
 from typing import Optional
 
 # Connection setup
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL", "redis://localhost:6379")
 
-r = redis.from_url(REDIS_URL, decode_responses=True)
+r = redis.from_url(UPSTASH_REDIS_REST_URL, decode_responses=True)
 
 class CacheManager:
     @staticmethod
