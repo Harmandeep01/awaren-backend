@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     mem0_api_key: str = ""
     vertex_model_name: str = "gemini-2.5-flash"
     google_genai_use_vertexai: bool
+    aws_region: str ="eu-north-1"
 
     class Config:
         env_file = ".env"
