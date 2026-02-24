@@ -18,7 +18,7 @@ app = FastAPI(title="Health Bot (Vertex+mem0) - Streaming demo")
 # ---- Strict CORS Policy ----
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://awaren-fe.vercel.app/"],  # ONLY this origin is allowed
+    allow_origins=["*"],  # ONLY this origin is allowed
     allow_credentials=False,  # strict: disallow cookies / auth headers from browsers
     allow_methods=["GET", "POST", "DELETE"],  # explicit minimal allowed methods
     allow_headers=["*"],  # only the headers you actually need
