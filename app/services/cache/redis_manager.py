@@ -8,7 +8,8 @@ from typing import Optional
 # Connection setup
 UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL", "redis://localhost:6379")
 
-r = redis.from_url(UPSTASH_REDIS_REST_URL, decode_responses=True)
+r = redis.Redis.from_url("rediss://default:AXAUAAIncDIwYmNmODRkYWU5MmY0MmQ4OGZjYTRkZTRhNzlmMjI0MnAyMjg2OTI@loyal-mosquito-28692.upstash.io:6379")
+
 
 class CacheManager:
     @staticmethod
