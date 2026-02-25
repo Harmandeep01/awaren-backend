@@ -38,7 +38,6 @@ async def get_relevant_memories(
 
     return out
 
-
 @router.get("/all", response_model=list[chat_schema.MemoryItem])
 async def get_all_memories(
     refresh: bool = Query(False),
@@ -46,44 +45,42 @@ async def get_all_memories(
     current_user=Depends(auth.get_current_user),
 ):
     user_id = str(current_user.user_id)
-    print("Current user id:", user_id)
     cache_key = f"memories:all:{user_id}"
-    print(f"Cache key {cache_key}")
-    # 1️⃣ Cache check (unless forced refresh)
-    if not refresh:
+    
+    # 1️⃣ If refresh is requested, KILL the old cache immediately
+    if refresh:
+        await CacheManager.delete(cache_key) 
+    else:
+        # Standard flow: return from cache if it exists
         cached = await CacheManager.get(cache_key)
-        print(f"Cached {cached}")
-        # ✅ IMPORTANT: allow empty list as valid cache
         if cached:
             return cached[:limit]
 
-    # 2️⃣ Source of truth (mem0)
-    print(f"Client {mem0_service.mem0.client}")
+    # 2️⃣ Source of truth (mem0) - Bypass phase
+    # Note: Ensure Render has AWS credentials to avoid the error you saw
     memories = mem0_service.mem0.client.get_all(user_id=user_id)
-    print(f"Memories {memories}")
+    
     out = []
     for m in memories:
+        # ... (Normalization logic remains the same)
         raw_categories = m.get("categories", []) or []
         clean_categories = [
-            cat.split(":")[-1].strip().capitalize()
-            if ":" in cat else cat.capitalize()
+            cat.split(":")[-1].strip().capitalize() if ":" in cat else cat.capitalize()
             for cat in raw_categories
         ]
 
-        out.append(
-            {
-                "id": m.get("id"),
-                "memory": m.get("memory") or m.get("content"),
-                "score": m.get("score", 1.0),
-                "categories": clean_categories or ["Fragment"],
-            }
-        ) 
-    # 3️⃣ ALWAYS cache normalized output (even if empty)
-    if out:
-        await CacheManager.set(cache_key, out, expire=60 if not out else 3600)
+        out.append({
+            "id": m.get("id"),
+            "memory": m.get("memory") or m.get("content"),
+            "score": m.get("score", 1.0),
+            "categories": clean_categories or ["Fragment"],
+        })
+
+    # 3️⃣ ALWAYS update or clear the cache for future requests
+    # Even if 'out' is empty, we set it so Redis reflects the current empty state
+    await CacheManager.set(cache_key, out, expire=3600)
+    
     return out[:limit]
-
-
 
 @router.get("/{memory_id}")
 async def get_memory_by_id(

@@ -6,10 +6,10 @@ import functools
 from typing import Optional
 
 # Connection setup
-UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL", "redis://localhost:6379")
+# UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL", "redis://localhost:6379")
 
 r = redis.Redis.from_url("rediss://default:AXAUAAIncDIwYmNmODRkYWU5MmY0MmQ4OGZjYTRkZTRhNzlmMjI0MnAyMjg2OTI@loyal-mosquito-28692.upstash.io:6379")
-
+# r = redis.Redis.from_url("redis://localhost:6379")
 
 class CacheManager:
     @staticmethod
@@ -28,3 +28,9 @@ class CacheManager:
     async def clear(key: str):
         """Manually invalidate cache"""
         r.delete(key)
+    
+    @staticmethod
+    async def delete(key: str):
+        """Manually invalidate cache"""
+        # Using r.delete to remove the specific key from Redis
+        return r.delete(key)
