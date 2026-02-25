@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.db import engine, Base
-
+import os
+import tempfile
 # routes
 from app.api.v1.chat_routes import router as chat_routes
 from app.api.v1.user_routes import router as user_routes
@@ -14,6 +15,13 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
 app = FastAPI(title="Health Bot (Vertex+mem0) - Streaming demo")
+
+# Initialize Google Credentials from Environment Variable
+google_json = os.environ.get("GOOGLE_CREDENTIALS_JSON")
+if google_json:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w") as f:
+        f.write(google_json)
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = f.name
 
 # ---- Strict CORS Policy ----
 app.add_middleware(
@@ -34,3 +42,4 @@ app.include_router(user_routes, prefix="/api/v1")
 app.include_router(memory_routes, prefix="/api/v1")
 app.include_router(conversation_routes, prefix="/api/v1")
 app.include_router(insight_routes, prefix="/api/v1")
+
